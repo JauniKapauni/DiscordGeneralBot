@@ -57,7 +57,7 @@ client.on(Events.GuildMemberAdd, async (member) => {
     const channel = member.guild.systemChannel;
     if(!channel) return;
 
-    channel.send(`Welcome ${member.user.tag} to the server!`);
+    channel.send(`Welcome ${member} to the server!`);
 });
 
 client.login(token);
