@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits, MessageFlags } = require('discord.js');
-const { token, welcomeChannelId, loggingChannelId } = require('./config.json');
+const { token, welcomeChannelId, loggingChannelId, boostChannelId } = require('./config.json');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
 client.commands = new Collection();
@@ -77,6 +77,15 @@ client.on(Events.GuildMemberRemove, async (member) => {
     } catch (e){
         console.error(`Failed to send logging message:`, e);
     }
-})
+});
+
+client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
+    if(!oldMember.premiumSince && newMember.premiumSince){
+        const channel = await client.channels.fetch(boostChannelId);
+        if(channel){
+            await channel.send(`Thank you ${newMember} for boosting the server!`);
+        }
+    }
+});
 
 client.login(token);
