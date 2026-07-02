@@ -9,6 +9,7 @@
   "clientId": "",
   "guildId": "",
   "welcomeChannelId": "",
-  "loggingChannelId": ""
+  "loggingChannelId": "",
+  "boostChannelId": ""
 }
 ```
