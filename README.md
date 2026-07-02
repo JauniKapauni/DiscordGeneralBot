@@ -8,6 +8,7 @@
   "token": "",
   "clientId": "",
   "guildId": "",
-  "welcomeChannelId": ""
+  "welcomeChannelId": "",
+  "loggingChannelId": ""
 }
 ```
