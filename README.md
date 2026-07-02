@@ -7,6 +7,7 @@
 {
   "token": "",
   "clientId": "",
-  "guildId": ""
+  "guildId": "",
+  "welcomeChannelId": ""
 }
 ```
