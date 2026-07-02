@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits, MessageFlags } = require('discord.js');
-const { token, welcomeChannelId } = require('./config.json');
+const { token, welcomeChannelId, loggingChannelId } = require('./config.json');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
 client.commands = new Collection();
@@ -65,5 +65,18 @@ client.on(Events.GuildMemberAdd, async (member) => {
         console.error(`Failed to send welcome message:`, e);
     }
 });
+
+client.on(Events.GuildMemberRemove, async (member) => {
+    try{
+        const channel = await client.channels.fetch(loggingChannelId);
+        if(!channel){
+            console.error(`Logging channel (${loggingChannelId}) not found!`);
+            return;
+        }
+        await channel.send(`${member} left the server!`);
+    } catch (e){
+        console.error(`Failed to send logging message:`, e);
+    }
+})
 
 client.login(token);
