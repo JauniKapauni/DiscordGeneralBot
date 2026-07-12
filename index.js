@@ -31,7 +31,7 @@ async function handlePollButton(interaction){
                         option2Votes = row.count;
                     }
                 }
-                const embed = new EmbedBuilder().setTitle("Poll").setDescription(`${poll.question}\n${poll.option1}: ${option1Votes}\n${poll.option2}: ${option2Votes}`).setColor("Blue");
+                const embed = new EmbedBuilder().setTitle("Poll").setDescription(`${poll.question}\n${poll.option1}: ${option1Votes}\n${poll.option2}: ${option2Votes}\n<t:${poll.end_time}:R>`).setColor("Blue");
                 await interaction.update({embeds: [embed]});
             })
         });
