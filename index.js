@@ -1,8 +1,42 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits, MessageFlags } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, MessageFlags, EmbedBuilder } = require('discord.js');
 const { token, welcomeChannelId, loggingChannelId, boostChannelId } = require('./config.json');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
+const db = require("./database");
+
+async function handlePollButton(interaction){
+    if(interaction.customId !== "poll_option1" && interaction.customId !== "poll_option2") return;
+    db.get(`SELECT * FROM polls WHERE message_id = ?`, [interaction.message.id], (err, poll) => {
+        if(err){
+            console.error(err);
+            return;
+        }
+        if(!poll){
+            return interaction.reply({
+                content: "Poll not found",
+                ephemeral: true
+            });
+        }
+        db.run(`DELETE FROM poll_votes WHERE poll_id = ? AND user_id = ?`, [poll.id, interaction.user.id], () => {
+            db.run(`INSERT INTO poll_votes (poll_id, user_id, option) VALUES (?, ?, ?)`, [poll.id, interaction.user.id, interaction.customId]);
+            db.all(`SELECT option, COUNT(*) as count FROM poll_votes WHERE poll_id = ? GROUP BY option`, [poll.id], async (err, rows) => {
+                let option1Votes = 0;
+                let option2Votes = 0;
+                for(const row of rows){
+                    if(row.option === "poll_option1"){
+                        option1Votes = row.count;
+                    }
+                    if(row.option === "poll_option2"){
+                        option2Votes = row.count;
+                    }
+                }
+                const embed = new EmbedBuilder().setTitle("Poll").setDescription(`${poll.question}\n${poll.option1}: ${option1Votes}\n${poll.option2}: ${option2Votes}`).setColor("Blue");
+                await interaction.update({embeds: [embed]});
+            })
+        });
+    })
+}
 
 client.commands = new Collection();
 
@@ -28,6 +62,10 @@ client.once(Events.ClientReady, (readyClient) => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
+    if(interaction.isButton()){
+        handlePollButton(interaction);
+        return;
+    }
     if(!interaction.isChatInputCommand()) return;
     const command = interaction.client.commands.get(interaction.commandName);
     if(!command){
