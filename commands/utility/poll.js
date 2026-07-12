@@ -20,5 +20,15 @@ module.exports = {
 			fetchReply: true,
 		});
 		db.run(`INSERT INTO polls (message_id, question, option1, option2, end_time) VALUES (?, ?, ?, ?, ?)`, [message.id, question, option1, option2, endTime]);
+		setTimeout(async () => {
+			try{
+				const embedMessage = await interaction.channel.messages.fetch(message.id);
+				await embedMessage.edit({
+					components: []
+				});
+			} catch (err){
+				console.error("Failed to remove buttons", err);
+			}
+		}, duration * 60 * 1000);
 	},
 };
